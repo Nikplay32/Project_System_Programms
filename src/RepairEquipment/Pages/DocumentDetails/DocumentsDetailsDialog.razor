@@ -1,0 +1,95 @@
+﻿@using RepairEquipment.Client.Services
+@using RepairEquipment.Client.Services.Interfaces
+@inject IUtilsService _utilsService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success">
+            <MudItem xs="12" sm="6" md="12" Class="d-flex mb-5">
+                <MudGrid Spacing="1">
+               
+                    <MudItem xs="6">
+                        @* DocumentDateOut *@
+                        <MudDatePicker Label="DocumentDateOut" Required="true" Editable="true" RequiredError="DocumentDateOut is required!" 
+                                       @bind-Date="DocumentDetails.DocumentDateOut" DateFormat="dd.MM.yyyy" Mask="@(new DateMask("dd.MM.yyyy"))"/>                  
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        @* DocumentDateIn *@
+                        <MudDatePicker Label="DocumentDateIn" Required="true" Editable="true" RequiredError="DocumentDateIn is required!" 
+                                       @bind-Date="DocumentDetails.DocumentDateIn" DateFormat="dd.MM.yyyy" Mask="@(new DateMask("dd.MM.yyyy"))"/>                  
+                    </MudItem>
+                    
+                    <MudItem xs="6">
+                         @* Quantity *@
+                        <MudTextField T="decimal" Label="Quantity" Required="true" RequiredError="Quantity is required!" 
+                                      @bind-Value="DocumentDetails.Quantity"/>                       
+                    </MudItem>
+                    
+                    <MudItem xs="6">
+                         @* Equipment *@
+                         <MudSelect Label="Equipment" Required="true" Immediate="true" RequiredError="Equipment is required!" @bind-Value="_selectedEquipment">
+                             @foreach (EquipmentRecord equipment in EquipmentList)
+                             {
+                                 <MudSelectItem Value="@equipment">@equipment.Brand</MudSelectItem>
+                             }
+                         </MudSelect>                                          
+                    </MudItem>     
+                    
+                    <MudItem xs="12">
+                         @* Status *@
+                         <MudSelect Label="Status" Required="true" Immediate="true" RequiredError="Status is required!" @bind-Value="_selectedStatus">
+                             @foreach (DocumentStatusRecord status in Status)
+                             {
+                                 <MudSelectItem Value="@status">@status.Name</MudSelectItem>
+                             }
+                         </MudSelect>                                          
+                    </MudItem> 
+
+                    <MudItem xs="12">
+                         @* IssueDescription *@
+                        <MudTextField T="string" Label="IssueDescription" Required="true" RequiredError="IssueDescription is required!" 
+                                      @bind-Value="DocumentDetails.IssueDescription"/>                       
+                    </MudItem>
+
+                </MudGrid>
+            </MudItem>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        @* Save *@
+        <MudButton OnClick="Submit" StartIcon="@Icons.Rounded.Save" Disabled="@(!success)">Save</MudButton>
+
+        @* Cancel *@
+        <MudButton OnClick="Cancel" Color="Color.Error">Cancel</MudButton>       
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public DocumentDetailRecord DocumentDetails { get; set; } = new DocumentDetailRecord();
+    [Parameter] public List<EquipmentRecord>? EquipmentList { get; set; }
+    [Parameter] public List<DocumentStatusRecord>? Status { get; set; }
+    [Parameter] public EquipmentRecord? _selectedEquipment { get; set; } 
+    [Parameter] public DocumentStatusRecord? _selectedStatus { get; set; } 
+    [Parameter] public string? DocumentID { get; set; }
+    bool success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _selectedEquipment = await _utilsService.GetEquipmentByIdAsync(DocumentDetails.EquipmentID);
+        _selectedStatus = await _utilsService.GetDocumentStatusByIdAsync(DocumentDetails.StatusID);
+    }
+
+    void Submit() {
+        DocumentDetails.DocumentID = Convert.ToInt32(DocumentID);
+        DocumentDetails.EquipmentID = _selectedEquipment.ID;
+        DocumentDetails.StatusID = _selectedStatus.ID;
+        MudDialog.Close(DialogResult.Ok(DocumentDetails));
+    }
+ 
+    void Cancel() => MudDialog.Cancel();
+
+}

@@ -1,0 +1,182 @@
+﻿@page "/equipment"
+@using RepairEquipment.Client.DbAccess
+@using RepairEquipment.Client.Services.Interfaces
+@using RepairEquipment.Shared.Models
+@using RepairEquipment.Client.Services
+@inject IEquipmentService _data
+@inject IEquipmentTypeService _equipmentType
+@inject ILocationService _location
+@inject IUtilsService _utils
+@inject IDialogService _dialogService
+@inject ISnackbar Snackbar
+
+@if (EquipmentList == null)
+{
+    <p><em>Loading ... </em></p>
+}
+else
+{
+    <MudPaper Square="true" Style="text-align: left" Class="pa-4 d-flex flex-grow-1">
+        <MudContainer Class="align-self-stretch" Style="text-align: left">
+            <MudBreadcrumbs Items="@_items" Separator=">"></MudBreadcrumbs>
+        </MudContainer>
+        <MudSpacer />
+        <MudButton Class="mud-button" Style="margin-right: 15px" @onclick="InsertEquipment" StartIcon="@Icons.Material.Filled.Create" Variant="Variant.Filled" Color="Color.Success">CREATE</MudButton>
+    </MudPaper>
+    
+    <MudTable Class="mud-fab-layout-content" @ref="_equipmentTable" Items="@EquipmentList" Dense="@dense" Hover="@hover" Filter="new Func<EquipmentRecord, bool>(Filter)" @bind-SelectedItem="_selectedItem">
+
+        <ToolBarContent>
+            <MudTextField @bind-Value="searchString" Immediate="true" Placeholder="Search" Adornment="Adornment.Start"
+                        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" />
+        </ToolBarContent>
+            
+        <HeaderContent>
+            <MudTh>Brand</MudTh>
+            <MudTh>Model</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>SerialNumber</MudTh>
+            <MudTh>PurchaseDate</MudTh>
+            <MudTh></MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+            
+        <RowTemplate>
+            <MudTd @ondblclick="@(()=>UpdateEquipment(@context.ID))" DataLabel="Brand">@context.Brand</MudTd>
+            <MudTd @ondblclick="@(()=>UpdateEquipment(@context.ID))" DataLabel="Model">@context.Model</MudTd>
+            <MudTd @ondblclick="@(()=>UpdateEquipment(@context.ID))" DataLabel="Type">@_utils.GetEquipmentTypeNameById(@context.TypeID)</MudTd>
+            <MudTd @ondblclick="@(()=>UpdateEquipment(@context.ID))" DataLabel="SerialNumber">@context.SerialNumber</MudTd>
+            <MudTd @ondblclick="@(()=>UpdateEquipment(@context.ID))" DataLabel="PurchaseDate">@Convert.ToString(string.Format("{0:dd/MM/yyyy}", context.PurchaseDate))</MudTd>
+            <MudTd Style="text-align: right">
+                <MudIconButton
+                    Class="hoverable-item top-0 right-0 mt-3 mr-4"
+                    Color="Color.Error"
+                    Variant="Variant.Filled"
+                    Icon="@Icons.Rounded.Delete"
+                    @onclick="@(()=>DeleteEquipment(@context.ID))"/>               
+            </MudTd>
+            <MudTd></MudTd>            
+        </RowTemplate>
+
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+    <div class="d-flex flex-wrap mt-4">
+        <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+        <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    </div>
+
+
+}
+
+
+@code {
+
+    MudTable<EquipmentRecord>? _equipmentTable;
+    private EquipmentRecord? _selectedItem;
+    private List<EquipmentRecord>? EquipmentList;
+    private List<EquipmentTypeRecord>? EquipmentTypeList;
+    private EquipmentRecord Equipment = new EquipmentRecord();
+    private string searchString = "";
+    private bool hover = true;
+    private bool dense = false;
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Equipment", href: null, disabled: true),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetEquipmentList();
+        await GetEquipmentType();
+    }
+
+    private async Task GetEquipmentList() => EquipmentList = await _data.GetEquipmentListAsync().ConfigureAwait(false);
+
+    private async Task GetEquipmentType() => EquipmentTypeList = await _equipmentType.GetEquipmentTypeListAsync().ConfigureAwait(false);
+
+    private async Task InsertEquipment()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Equipment", new EquipmentRecord());
+        parameters.Add("EquipmentType", EquipmentTypeList);
+        var dialog = _dialogService.Show<EquipmentDialog>("Create Equipment", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            EquipmentRecord? equipment = result.Data as EquipmentRecord;
+
+            await _data.InsertEquipmentAsync(equipment).ConfigureAwait(false);
+
+            EquipmentList.Add(equipment);
+
+            Equipment = new EquipmentRecord();
+            Snackbar.Add("Equipment successfully added");
+            await GetEquipmentList();
+        }
+    }
+
+    private async Task UpdateEquipment(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Equipment", _selectedItem);
+        parameters.Add("EquipmentType", EquipmentTypeList);
+        var dialog = _dialogService.Show<EquipmentDialog>("Edit Document", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await _data.UpdateEquipmentAsync(result.Data as EquipmentRecord).ConfigureAwait(false);
+            Snackbar.Add("Equipment successfully updated");
+            await GetEquipmentList();
+        }
+    }
+
+    private async Task DeleteEquipment(int id)
+    {
+        var documentDetails = await _utils.GetDocumentDetailEquipmentByIdAsync(id);
+        if (documentDetails.Any())
+        {
+            var opt = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var param = new DialogParameters();
+            param.Add("ContentText", "Equipment is used in document details, firstly you have to delete them");
+            param.Add("ButtonText", "Ok");
+            param.Add("Color", Color.Info);
+            _dialogService.Show<DeleteConfirmation>("Warning", param, opt);
+            return;                        
+        }
+
+        if (!documentDetails.Any())
+        {
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", "Do you really want to delete this record? This process cannot be undone.");
+            parameters.Add("ButtonText", "Delete");
+            parameters.Add("ButtonText", "Delete");
+            parameters.Add("Color", Color.Error);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = _dialogService.Show<DeleteConfirmation>("Delete", parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled) {
+                EquipmentRecord? equipment = EquipmentList.Where(x => x.ID == id).FirstOrDefault();
+                await _data.DeleteEquipmentAsync(equipment).ConfigureAwait(false);
+                Snackbar.Add($"#{equipment.ID} Document successfully deleted");
+                await GetEquipmentList();
+            }            
+        }
+    }
+    
+    private bool Filter(EquipmentRecord equipment) 
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+        if (equipment.Brand.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (_utils.GetEquipmentTypeNameById(equipment.TypeID).Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (equipment.SerialNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (equipment.PurchaseDate.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+}

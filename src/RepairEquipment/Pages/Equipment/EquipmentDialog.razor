@@ -1,0 +1,79 @@
+﻿@using RepairEquipment.Client.Services
+@using System.ComponentModel.DataAnnotations
+@using RepairEquipment.Client.Services.Interfaces
+@inject IUtilsService _utilsService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success">
+            <MudItem xs="12" sm="6" md="12" Class="d-flex mb-5">
+                <MudGrid Spacing="1">                           
+                       
+                        <MudItem xs="6">
+                            @* Brand *@
+                            <MudTextField Xs="12" MaxLength="200" AutoFocus="true" T="string" Label="Brand" Immediate="true" Required="true" 
+                                          RequiredError="Brand is required!" @bind-Value="Equipment.Brand"/>
+                        </MudItem>
+
+                         <MudItem xs="6">
+                            @* Model *@
+                            <MudTextField Xs="12" MaxLength="200" AutoFocus="true" T="string" Label="Model" Immediate="true" Required="true" 
+                                          RequiredError="Model is required!" @bind-Value="Equipment.Model"/>
+                        </MudItem>
+
+                        <MudItem xs="6">
+                            @* Type *@
+                            <MudSelect Xs="12" Label="Type" Immediate="true" Required="true" RequiredError="Type is required!" @bind-Value="_selectedEquipmentType">
+                                @foreach (EquipmentTypeRecord type in EquipmentType)
+                                {
+                                    <MudSelectItem Value="@type">@type.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        
+                        <MudItem xs="6">
+                            @* SerialNumber *@
+                            <MudTextField Xs="12" MaxLength="20" T="string" Label="SerialNumber" Immediate="true" Required="true" RequiredError="Serial number is required!" @bind-Value="Equipment.SerialNumber"/>
+                        </MudItem>                      
+                       
+                        <MudItem xs="12">
+                            @* PurchaseDate *@ 
+                            <MudDatePicker Xs="12" Label="dd.MM.yyyy" Editable="true" @bind-Date="Equipment.PurchaseDate" Mask="@(new DateMask("dd.MM.yyyy"))" 
+                                            DateFormat="dd.MM.yyyy"/>
+                        </MudItem>
+
+                </MudGrid>
+            </MudItem>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>        
+        @* Save *@
+        <MudButton OnClick="Submit" StartIcon="@Icons.Rounded.Save" Disabled="@(!success)">Save</MudButton>
+
+        @* Cancel *@
+        <MudButton OnClick="Cancel" Color="Color.Error">Cancel</MudButton>         
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public EquipmentRecord Equipment { get; set; } = new EquipmentRecord();
+    [Parameter] public static EquipmentTypeRecord? _selectedEquipmentType { get; set; }
+    [Parameter] public List<EquipmentTypeRecord> EquipmentType { get; set; }
+    bool success;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        await base.OnInitializedAsync();
+        _selectedEquipmentType = await _utilsService.GetEquipmentTypeByIdAsync(Equipment.TypeID);
+    }
+
+    void Submit()
+    {
+        Equipment.TypeID = _selectedEquipmentType.ID;
+        MudDialog.Close(DialogResult.Ok(Equipment));
+    }
+    void Cancel() => MudDialog.Cancel();
+
+}
