@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOOBOB</title>
+    <link rel="shortcut icon" href="img/large_hoobob.png">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+  <header>
+		<a href="#" class="logo"><img src="img/large_hoobob.png"></a>
+		<div class="bx bx-menu" id="menu-icon"></div>
+
+		<ul class="navbar">
+			<li><a href="index.html">Home</a></li>
+			<li><a href="#about">About Us</a></li>
+			<li><a href="#services">Services</a></li>
+			<li><a href="#portfolio">Our Projects</a></li>
+			<li><a href="#contact">Contacts</a></li>
+			<li><a href="login.html">Profile</a></li>
+		</ul>
+	</header>
+
+  <section class="home" id="home">
+		<div class="wrapper">
+      <div class="left">
+          <img src="img/149071.png" alt="user" width="100">
+          <h4>Alex William</h4>
+           <p>Client</p>
+      </div>
+      <div class="right">
+          <div class="info">
+              <h3>Information</h3>
+              <div class="info_data">
+                   <div class="data">
+                      <h4>Email</h4>
+                      <p>alex@gmail.com</p>
+                   </div>
+                   <div class="data">
+                     <h4>Phone</h4>
+                      <p>0001-213-998761</p>
+                </div>
+              </div>
+          </div>
+        
+        <div class="projects">
+              <h3>Delivery Info</h3>
+              <div class="projects_data">
+                   <div class="data">
+                      <h4>Adress</h4>
+                      <p>Lorem ipsum dolor sit amet.</p>
+                   </div>
+                   <div class="data">
+                     <h4>City</h4>
+                      <p>dolor sit amet.</p>
+                   </div>
+                   <div class="data">
+                    <h4>Postal Code</h4>
+                     <p>dolor sit amet.</p>
+                  </div>
+              </div>
+          </div>
+
+          <div class="projects">
+            <h3>Additional Information</h3>
+            <div class="projects_data">
+              <div class="data" style="margin-left: 27%">
+                 <h4>Data</h4>
+                 <p>Lorem ipsum dolor sit amet.</p>
+              </div>
+            </div>
+          </div>
+        
+          <div class="social_media">
+            <a href="update.html" class="btn">Edit Profile</a>
+        </div>
+      </div>
+  </div>
+	</section>
+  <!------------------------------------
+  <div class="home-text">
+      <img class="image" src="img/149071.png" alt="">
+			<h2 class="name">User</h2>
+			<a href="#" class="btn">Contact Us</a>
+		</div>
+  ------------------------------------->
+  <section class="about" id="about">
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+    <button class="btn" onclick="sortTable()"><i class="fa fa-sort"></i></button>
+    <table id="myTable">
+      <tr>
+        <th>Document Data</th>
+        <th>Date</th>
+        <th>Price</th>
+        <th>Buttons</th>
+      </tr>
+      <tr>
+        <td>Slfreds Futterkiste</td>
+        <td>Maria Anders</td>
+        <td>Germany</td>
+        <td class="buttons"><button class="btn"><i class="fa fa-bars"></i></button><button class="btn"><i class="fa fa-folder"></i></button><button class="btn"><i class="fa fa-download"></i></button></td>
+      </tr>
+      <tr>
+        <td>Gentro comercial Moctezuma</td>
+        <td>Francisco Chang</td>
+        <td>Mexico</td>
+        <td><button class="btn"><i class="fa fa-bars"></i></button><button class="btn"><i class="fa fa-folder"></i></button><button class="btn"><i class="fa fa-download"></i></button></td>
+      </tr>
+      <tr>
+        <td>Prnst Handel</td>
+        <td>Roland Mendel</td>
+        <td>Austria</td>
+        <td><button class="btn"><i class="fa fa-bars"></i></button><button class="btn"><i class="fa fa-folder"></i></button><button class="btn"><i class="fa fa-download"></i></button></td>
+      </tr>
+      <tr>
+        <td>Island Trading</td>
+        <td>Helen Bennett</td>
+        <td>UK</td>
+        <td><button class="btn"><i class="fa fa-bars"></i></button><button class="btn"><i class="fa fa-folder"></i></button><button class="btn"><i class="fa fa-download"></i></button></td>
+      </tr>
+      <tr>
+        <td>Laughing Bacchus Winecellars</td>
+        <td>Yoshi Tannamuri</td>
+        <td>Canada</td>
+        <td><button class="btn"><i class="fa fa-bars"></i></button><button class="btn"><i class="fa fa-folder"></i></button><button class="btn"><i class="fa fa-download"></i></button></td>
+      </tr>
+      <tr>
+        <td>Magazzini Alimentari Riuniti</td>
+        <td>Giovanni Rovelli</td>
+        <td>Italy</td>
+        <td><button class="btn"><i class="fa fa-bars"></i></button><button class="btn"><i class="fa fa-folder"></i></button><button class="btn"><i class="fa fa-download"></i></button></td>
+      </tr>
+    </table>
+  </section>
+
+  <section class="contact" id="contact">
+		<div class="contact-text">
+			<h2>Contact Me</h2>
+			<h4>Let's Work Together</h4>
+			<p>Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry</p>
+			<div class="contact-list">
+				<li><a href="#">Mansoura - Dakhalia - Egyp</a></li>
+				<li><a href="#">admin@example.com</a></li>
+				<li><a href="#">01646895741</a></li>
+			</div>
+			<div class="contact-icons">
+				<a href="#"><i class='bx bxl-linkedin' ></i></a>
+				<a href="#"><i class='bx bxl-facebook' ></i></a>
+				<a href="#"><i class='bx bxl-behance' ></i></a>
+				<a href="#"><i class='bx bxl-instagram' ></i></a>
+				<a href="#"><i class='bx bxl-dribbble' ></i></a>
+			</div>
+		</div>
+
+		<div class="contact-form">
+			<form action="">
+				<input type="" placeholder="Enter Your Name" required>
+				<input type="email" placeholder="Enter Your Email" required>
+				<input type="" placeholder="Enter Your Subject">
+				<textarea name="" id="" cols="40" rows="10" placeholder="Enter Your Message" required></textarea>
+				<input type="submit" value="Submit" class="send">
+			</form>
+		</div>
+	</section>
+
+	<div class="last-text">
+		<p>Developed for HOOBOB © 2022</p>
+	</div>
+	<a href="#" class="top"><i class='bx bx-up-arrow-alt' ></i></a>
+  
+  <script src="https://unpkg.com/scrollreveal"></script>
+	<script type="text/javascript" src="js/user.js"></script>
+</body>
+</html>

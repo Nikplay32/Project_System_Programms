@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOOBOB</title>
+    <link rel="shortcut icon" href="img/large_hoobob.png">
+    <link rel="stylesheet" href="update.css">
+</head>
+<body>
+    <header>
+        <a href="#" class="logo"><img src="img/large_hoobob.png"></a>
+        <div class="bx bx-menu" id="menu-icon"></div>
+        <ul class="navbar">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#portfolio">Our Projects</a></li>
+            <li><a href="#contact">Contacts</a></li>
+            <li><a href="user.html">Profile</a></li>
+        </ul>
+    </header>
+    <div class="container">
+
+        <h1 class="title">Edit Profile</h1>
+    
+        <div class="grid">
+            <div class="form-group a">
+                <label for="name">Name</label>
+                <input id="name" type="text">
+            </div>
+    
+            <div class="form-group b">
+                <label for="first-name">LastName</label>
+                <input id="first-name" type="text">
+            </div>
+    
+            <div class="form-group email-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" pattern=".+@globex\.com" size="30" required>
+            </div>
+    
+            <div class="form-group phone-group">
+                <label for="phone">Telephone (mobile)</label>
+                <input id="phone" type="text" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+            </div>
+    
+            <div class="textarea-group">
+                <label for="bio">Additional Data</label>
+                <textarea id="bio"></textarea>
+            </div>
+    
+            <div class="form-group">
+                <label for="address">Adress</label>
+                <input id="address" type="text">
+            </div>
+    
+            <div class="form-group">
+                <label for="city">City</label>
+                <input id="city" type="text">
+            </div>
+    
+            <div class="form-group">
+                <label for="zip">Postal Code<Code></Code></label>
+                <input id="zip" type="text">
+            </div>
+        </div>
+    
+        <div class="checkboxes">
+    
+            <div class="checkbox-group">
+                <input id="newsletter" type="checkbox">
+                <label for="newsletter">Subscribe for news</label>
+            </div>
+    
+            <div class="checkbox-group">
+                <input id="newsletter-partners" type="checkbox">
+                <label for="newsletter-partners">Subscribe for news from our partners</label>
+            </div>
+    
+        </div>
+    
+        <div class="button-container">
+            <button class="button">Save Changes</button>
+        </div>
+    </div>
+</body>
+</html>
