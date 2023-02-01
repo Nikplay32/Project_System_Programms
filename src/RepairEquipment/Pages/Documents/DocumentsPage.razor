@@ -1,0 +1,190 @@
+﻿@page "/"
+@using RepairEquipment.Client.DbAccess
+@using RepairEquipment.Client.Services.Interfaces
+@using RepairEquipment.Shared.Models
+@using RepairEquipment.Client.Services
+@inject IDocumentService _data
+@inject IDocumentDetailsService _details
+@inject IDialogService _dialogService
+@inject IEmployeeService _employee
+@inject IClientService _client
+@inject IUtilsService _utils
+@inject ISnackbar Snackbar
+
+@if (Documents == null)
+{
+    <p><em>Loading ... </em></p>
+}
+else
+{
+    <MudPaper Square="true" Class="pa-4 d-flex flex-grow-1">
+
+        <MudContainer Class="align-self-stretch" Style="text-align: left">
+            <MudBreadcrumbs Items="@_items" Separator=">"></MudBreadcrumbs>
+        </MudContainer>
+        
+        <MudContainer Style="text-align: right; padding-right: unset; margin-right: 15px">
+            <MudButton @onclick="InsertDocument" StartIcon="@Icons.Material.Filled.Create" Variant="Variant.Filled" Color="Color.Success">CREATE</MudButton>                  
+        </MudContainer>
+        
+    </MudPaper>
+    
+    <MudTable Class="mud-fab-layout-content" Items="@Documents" Dense="@dense" Hover="@hover" @bind-SelectedItem="_selectedItem"
+              Filter="new Func<DocumentRecord, bool>(Filter)">
+        <ToolBarContent>
+            <MudTextField @bind-Value="searchString" Immediate="true" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" />
+        </ToolBarContent>
+
+        <HeaderContent>
+            <MudTh>DocumentNumber</MudTh>
+            <MudTh>Client</MudTh>
+            <MudTh>Employee</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        
+        <RowTemplate>
+            <MudTd @ondblclick="@(()=>UpdateDocument(@context.ID))" DataLabel="DocumentNumber">@context.DocumentNumber</MudTd>
+            <MudTd @ondblclick="@(()=>UpdateDocument(@context.ID))" DataLabel="Client">@_utils.GetClientNameById(@context.ClientID)</MudTd>
+            <MudTd @ondblclick="@(()=>UpdateDocument(@context.ID))" DataLabel="Employee">@_utils.GetEmployeeNameById(@context.EmployeeID)</MudTd>
+            <MudTd Style="text-align: right">
+                
+                <MudLink>
+                    <MudIconButton
+                        Class="hoverable-item top-0 right-0 mt-3 mr-4"
+                        Color="Color.Info"
+                        Variant="Variant.Filled"
+                        Icon="@Icons.Rounded.DensitySmall"/>
+                </MudLink>
+                
+                <MudIconButton
+                    Class="hoverable-item top-0 right-0 mt-3 mr-4"
+                    Color="Color.Error"
+                    Variant="Variant.Filled"
+                    Icon="@Icons.Rounded.Delete"
+                    @onclick="@(()=>DeleteDocument(@context.ID))"/>   
+                    
+            </MudTd>
+        </RowTemplate>
+
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+    <div class="d-flex flex-wrap mt-4">
+        <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+        <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    </div>
+
+
+}
+
+
+@code {
+  
+    private DocumentRecord? _selectedItem;
+    private List<DocumentRecord>? Documents;
+    private List<EmployeeRecord>? Employees;
+    private List<ClientRecord>? Clients;
+    private DocumentRecord Document = new DocumentRecord();
+    private string searchString = "";
+    private bool hover = true;
+    private bool dense = false;
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Documents", href: null, disabled: true),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDocuments();
+        await GetEmployees();
+        await GetClients();
+    }
+
+    private async Task GetDocuments() => Documents = await _data.GetDocumentsListAsync().ConfigureAwait(false);
+
+    private async Task GetEmployees() => Employees = await _employee.GetEmployeesListAsync().ConfigureAwait(false);
+    
+    private async Task GetClients() => Clients = await _client.GetClientsListAsync().ConfigureAwait(false);
+
+    private async Task InsertDocument()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Document", new DocumentRecord());
+        parameters.Add("Employees", Employees);
+        parameters.Add("Clients", Clients);
+        var dialog = _dialogService.Show<DocumentDialog>("Create Document", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            var document = result.Data as DocumentRecord;
+
+            await _data.InsertDocumentAsync(document).ConfigureAwait(false);
+
+            Snackbar.Add("Document successfully added");
+            await GetDocuments();
+        }
+    }
+
+    private async Task UpdateDocument(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Document", _selectedItem);     
+        parameters.Add("Employees", Employees);
+        parameters.Add("Clients", Clients);
+        var dialog = _dialogService.Show<DocumentDialog>("Edit Document", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await _data.UpdateDocumentAsync(result.Data as DocumentRecord).ConfigureAwait(false);
+            Snackbar.Add("Document successfully updated");
+            await GetDocuments();
+        }
+    }
+
+    private async Task DeleteDocument(int id)
+    {
+        var docDetails = await _details.GetDocumentDetailsAsync(id);
+
+        if (docDetails.Any())
+        {
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", "Document has details, firstly you have to delete them");
+            parameters.Add("ButtonText", "Ok");
+            parameters.Add("Color", Color.Info);
+            _dialogService.Show<DeleteConfirmation>("Warning", parameters, options);
+            return;
+        }
+        if (!docDetails.Any()) {
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", "Do you really want to delete this record? This process cannot be undone.");
+            parameters.Add("CancelButton", "Cancel");
+            parameters.Add("ButtonText", "Delete");
+            parameters.Add("Color", Color.Error);
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = _dialogService.Show<DeleteConfirmation>("Delete", parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled) {
+                DocumentRecord? document = Documents.Where(x => x.ID == id).FirstOrDefault();
+                await _data.DeleteDocumentAsync(document).ConfigureAwait(false);
+                Snackbar.Add($"#{document.ID} Document successfully deleted");
+                await GetDocuments();
+            }   
+        }
+    }
+
+    private bool Filter(DocumentRecord document)
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+        if (document.DocumentNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (_utils.GetClientNameById(document.ClientID).Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (_utils.GetEmployeeNameById(document.EmployeeID).Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+}

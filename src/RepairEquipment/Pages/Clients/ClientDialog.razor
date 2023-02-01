@@ -1,0 +1,58 @@
+﻿@using RepairEquipment.Client.Services
+@using System.ComponentModel.DataAnnotations
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success">
+            <MudItem xs="12" sm="6" md="12" Class="d-flex mb-5">
+                <MudGrid Spacing="1">
+                    
+                    <MudItem xs="6">
+                        @* Name *@
+                        <MudTextField MaxLength="50" T="string" Label="Name" Immediate="true" Required="true" RequiredError="Name is required!" 
+                                      @bind-Value="Client.Name" AutoFocus="true"/>                        
+                    </MudItem>
+                           
+                    <MudItem xs="6">
+                        @* RegistrationNr *@
+                        <MudTextField MaxLength="20" T="string" Label="RegistrationNr" Immediate="true" Required="true" RequiredError="RegistrationNr is required!" @bind-Value="Client.RegistrationNr" />                        
+                    </MudItem>
+           
+                    <MudItem xs="12">
+                        @* LegalAddress *@
+                        <MudTextField MaxLength="100" T="string" Label="LegalAddress" Immediate="true" Required="true" RequiredError="Phone is required!" @bind-Value="Client.LegalAddress" />                        
+                    </MudItem>
+            
+                    <MudItem xs="6">
+                        @* Phone *@
+                        <MudTextField MaxLength="20" T="string" Label="Phone" Immediate="true" Required="true" RequiredError="Phone is required!" @bind-Value="Client.Phone" />
+                    </MudItem>
+           
+                    <MudItem xs="6">
+                        @* Email *@
+                        <MudTextField MaxLength="50" T="string" Label="Email" Immediate="true" Validation="@(new EmailAddressAttribute() { ErrorMessage = "The email address is invalid"})" 
+                                      Required="true" RequiredError="Email is required!" @bind-Value="Client.Email" />                        
+                    </MudItem>
+                    
+                </MudGrid>
+            </MudItem>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        @* Save *@
+        <MudButton OnClick="Submit" StartIcon="@Icons.Rounded.Save" Disabled="@(!success)">Save</MudButton>
+
+        @* Cancel *@
+        <MudButton OnClick="Cancel" Color="Color.Error">Cancel</MudButton>  
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public ClientRecord Client { get; set; } = new ClientRecord();
+    bool success;
+    
+    void Submit() => MudDialog.Close(DialogResult.Ok(Client));
+    void Cancel() => MudDialog.Cancel();
+}
